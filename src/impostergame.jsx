@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Play, X, Crown, Eye, EyeOff } from 'lucide-react';
+import { Users, Plus, Play, X, Crown, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 import cardsData from './cards.json';
 
+// Initialize Supabase client
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 export default function ImposterGame() {
-  const [screen, setScreen] = useState('lobby'); // lobby, room, game, voting, results
+  const [screen, setScreen] = useState('lobby');
   const [rooms, setRooms] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(null);
   const [playerName, setPlayerName] = useState('');
@@ -14,84 +20,207 @@ export default function ImposterGame() {
   const [votes, setVotes] = useState({});
   const [descriptions, setDescriptions] = useState({});
   const [newDescription, setNewDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const createRoom = () => {
+  // Fetch rooms on mount and subscribe to changes
+  useEffect(() => {
+    fetchRooms();
+    
+    const roomsSubscription = supabase
+      .channel('rooms-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, () => {
+        fetchRooms();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(roomsSubscription);
+    };
+  }, []);
+
+  // Subscribe to current room updates
+  useEffect(() => {
+    if (!currentRoom) return;
+
+    const subscription = supabase
+      .channel(`room-${currentRoom.id}`)
+      .on('postgres_changes', 
+        { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${currentRoom.id}` },
+        (payload) => {
+          setCurrentRoom(payload.new);
+          if (payload.new.game_state) {
+            setGameState(payload.new.game_state);
+            if (payload.new.game_state.round) {
+              setCurrentRound(payload.new.game_state.round);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [currentRoom?.id]);
+
+  const fetchRooms = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('status', 'waiting')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setRooms(data || []);
+    } catch (err) {
+      console.error('Error fetching rooms:', err);
+      setError('Failed to load rooms');
+    }
+  };
+
+  const createRoom = async () => {
     if (!newRoomName.trim() || !playerName.trim()) return;
     
-    const room = {
-      id: Date.now(),
-      name: newRoomName,
-      host: playerName,
-      players: [{ name: playerName, id: Date.now() }],
-      status: 'waiting'
-    };
+    setLoading(true);
+    setError('');
     
-    setRooms([...rooms, room]);
-    setCurrentRoom(room);
-    setScreen('room');
-    setNewRoomName('');
+    try {
+      const room = {
+        name: newRoomName,
+        host: playerName,
+        players: [{ name: playerName, id: Date.now() }],
+        status: 'waiting',
+        game_state: null
+      };
+      
+      const { data, error } = await supabase
+        .from('rooms')
+        .insert([room])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      setCurrentRoom(data);
+      setScreen('room');
+      setNewRoomName('');
+    } catch (err) {
+      console.error('Error creating room:', err);
+      setError('Failed to create room');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const joinRoom = (room) => {
+  const joinRoom = async (room) => {
     if (!playerName.trim()) return;
     
-    const player = { name: playerName, id: Date.now() };
-    const updatedRoom = {
-      ...room,
-      players: [...room.players, player]
-    };
+    setLoading(true);
+    setError('');
     
-    setRooms(rooms.map(r => r.id === room.id ? updatedRoom : r));
-    setCurrentRoom(updatedRoom);
-    setScreen('room');
+    try {
+      const player = { name: playerName, id: Date.now() };
+      const updatedPlayers = [...room.players, player];
+      
+      const { data, error } = await supabase
+        .from('rooms')
+        .update({ players: updatedPlayers })
+        .eq('id', room.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      setCurrentRoom(data);
+      setScreen('room');
+    } catch (err) {
+      console.error('Error joining room:', err);
+      setError('Failed to join room');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const startGame = () => {
+  const startGame = async () => {
     if (!currentRoom || currentRoom.players.length < 3) return;
     
-    // Pick random card and imposter
-    const selectedCard = cardsData.cards[Math.floor(Math.random() * cardsData.cards.length)];
-    const imposterIndex = Math.floor(Math.random() * currentRoom.players.length);
+    setLoading(true);
     
-    const playerCards = currentRoom.players.map((player, idx) => ({
-      playerId: player.id,
-      playerName: player.name,
-      card: idx === imposterIndex ? null : selectedCard,
-      isImposter: idx === imposterIndex
-    }));
-    
-    setGameState({
-      card: selectedCard,
-      playerCards,
-      round: 1,
-      allDescriptions: []
-    });
-    setCurrentRound(1);
-    setScreen('game');
-    setDescriptions({});
+    try {
+      const selectedCard = cardsData.cards[Math.floor(Math.random() * cardsData.cards.length)];
+      const imposterIndex = Math.floor(Math.random() * currentRoom.players.length);
+      
+      const playerCards = currentRoom.players.map((player, idx) => ({
+        playerId: player.id,
+        playerName: player.name,
+        card: idx === imposterIndex ? null : selectedCard,
+        isImposter: idx === imposterIndex
+      }));
+      
+      const newGameState = {
+        card: selectedCard,
+        playerCards,
+        round: 1,
+        allDescriptions: []
+      };
+      
+      const { data, error } = await supabase
+        .from('rooms')
+        .update({ 
+          status: 'playing',
+          game_state: newGameState 
+        })
+        .eq('id', currentRoom.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      setGameState(newGameState);
+      setCurrentRound(1);
+      setScreen('game');
+      setDescriptions({});
+    } catch (err) {
+      console.error('Error starting game:', err);
+      setError('Failed to start game');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const submitDescription = () => {
+  const submitDescription = async () => {
     if (!newDescription.trim()) return;
     
-    const myCard = gameState.playerCards.find(pc => pc.playerName === playerName);
-    setDescriptions({
-      ...descriptions,
-      [playerName]: newDescription
-    });
-    
-    const updatedDescriptions = [...gameState.allDescriptions, {
-      player: playerName,
-      text: newDescription,
-      round: currentRound
-    }];
-    
-    setGameState({
-      ...gameState,
-      allDescriptions: updatedDescriptions
-    });
-    
-    setNewDescription('');
+    try {
+      const updatedDescriptions = [...gameState.allDescriptions, {
+        player: playerName,
+        text: newDescription,
+        round: currentRound
+      }];
+      
+      const updatedGameState = {
+        ...gameState,
+        allDescriptions: updatedDescriptions
+      };
+      
+      const { error } = await supabase
+        .from('rooms')
+        .update({ game_state: updatedGameState })
+        .eq('id', currentRoom.id);
+      
+      if (error) throw error;
+      
+      setDescriptions({
+        ...descriptions,
+        [playerName]: newDescription
+      });
+      setNewDescription('');
+    } catch (err) {
+      console.error('Error submitting description:', err);
+      setError('Failed to submit description');
+    }
   };
 
   const goToVoting = () => {
@@ -113,7 +242,7 @@ export default function ImposterGame() {
     });
   };
 
-  const finishVoting = () => {
+  const finishVoting = async () => {
     const voteCount = {};
     let continueCount = 0;
     
@@ -126,45 +255,92 @@ export default function ImposterGame() {
     });
     
     if (continueCount > Object.keys(votes).length / 2) {
-      // Continue to next round
       setCurrentRound(currentRound + 1);
       setDescriptions({});
       setScreen('game');
+      
+      try {
+        const updatedGameState = {
+          ...gameState,
+          round: currentRound + 1
+        };
+        
+        await supabase
+          .from('rooms')
+          .update({ game_state: updatedGameState })
+          .eq('id', currentRoom.id);
+      } catch (err) {
+        console.error('Error updating round:', err);
+      }
     } else {
-      // Check who got most votes
       const sortedVotes = Object.entries(voteCount).sort((a, b) => b[1] - a[1]);
       const votedOut = sortedVotes[0]?.[0];
       
       const votedPlayer = gameState.playerCards.find(pc => pc.playerName === votedOut);
       
-      setGameState({
+      const updatedGameState = {
         ...gameState,
         result: {
           votedOut,
           wasImposter: votedPlayer?.isImposter,
           imposter: gameState.playerCards.find(pc => pc.isImposter)?.playerName
         }
-      });
+      };
       
-      setScreen('results');
+      try {
+        await supabase
+          .from('rooms')
+          .update({ 
+            status: 'finished',
+            game_state: updatedGameState 
+          })
+          .eq('id', currentRoom.id);
+        
+        setGameState(updatedGameState);
+        setScreen('results');
+      } catch (err) {
+        console.error('Error finishing game:', err);
+      }
     }
   };
 
-  const resetGame = () => {
+  const resetGame = async () => {
+    if (currentRoom) {
+      try {
+        await supabase
+          .from('rooms')
+          .delete()
+          .eq('id', currentRoom.id);
+      } catch (err) {
+        console.error('Error deleting room:', err);
+      }
+    }
+    
     setScreen('lobby');
     setCurrentRoom(null);
     setGameState(null);
     setCurrentRound(0);
     setVotes({});
     setDescriptions({});
+    fetchRooms();
   };
 
   const myCard = gameState?.playerCards.find(pc => pc.playerName === playerName);
+
+  // Get descriptions for current round
+  const currentRoundDescriptions = gameState?.allDescriptions.filter(d => d.round === currentRound) || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 p-4">
       <div className="max-w-4xl mx-auto">
         
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            {error}
+          </div>
+        )}
+
         {/* Lobby Screen */}
         {screen === 'lobby' && (
           <div className="bg-white rounded-2xl shadow-2xl p-8">
@@ -199,10 +375,11 @@ export default function ImposterGame() {
                 />
                 <button
                   onClick={createRoom}
-                  className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition flex items-center gap-2"
+                  disabled={loading}
+                  className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition flex items-center gap-2 disabled:bg-gray-400"
                 >
                   <Plus className="w-5 h-5" />
-                  Create
+                  {loading ? 'Creating...' : 'Create'}
                 </button>
               </div>
             </div>
@@ -223,9 +400,10 @@ export default function ImposterGame() {
                       </div>
                       <button
                         onClick={() => joinRoom(room)}
-                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+                        disabled={loading}
+                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition disabled:bg-gray-400"
                       >
-                        Join
+                        {loading ? 'Joining...' : 'Join'}
                       </button>
                     </div>
                   ))}
@@ -263,11 +441,11 @@ export default function ImposterGame() {
             {playerName === currentRoom.host && (
               <button
                 onClick={startGame}
-                disabled={currentRoom.players.length < 3}
+                disabled={currentRoom.players.length < 3 || loading}
                 className="w-full bg-purple-600 text-white py-4 rounded-lg hover:bg-purple-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg font-semibold"
               >
                 <Play className="w-6 h-6" />
-                Start Game {currentRoom.players.length < 3 && '(Need 3+ players)'}
+                {loading ? 'Starting...' : `Start Game ${currentRoom.players.length < 3 ? '(Need 3+ players)' : ''}`}
               </button>
             )}
           </div>
@@ -317,15 +495,15 @@ export default function ImposterGame() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-4">Descriptions This Round</h2>
               <div className="space-y-3 mb-4">
-                {Object.entries(descriptions).map(([player, desc]) => (
-                  <div key={player} className="bg-gray-50 p-4 rounded-lg">
-                    <p className="font-semibold text-purple-600">{player}</p>
-                    <p className="text-gray-700">{desc}</p>
+                {currentRoundDescriptions.map((desc, idx) => (
+                  <div key={idx} className="bg-gray-50 p-4 rounded-lg">
+                    <p className="font-semibold text-purple-600">{desc.player}</p>
+                    <p className="text-gray-700">{desc.text}</p>
                   </div>
                 ))}
               </div>
 
-              {!descriptions[playerName] && (
+              {!currentRoundDescriptions.find(d => d.player === playerName) && (
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -344,7 +522,7 @@ export default function ImposterGame() {
               )}
             </div>
 
-            {Object.keys(descriptions).length === currentRoom.players.length && (
+            {currentRoundDescriptions.length === currentRoom.players.length && (
               <button
                 onClick={goToVoting}
                 className="w-full bg-red-600 text-white py-4 rounded-lg hover:bg-red-700 transition text-lg font-semibold"
