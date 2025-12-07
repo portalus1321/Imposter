@@ -4,8 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import cardsData from './cards.json';
 
 // Initialize Supabase client
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function ImposterGame() {
@@ -49,11 +49,27 @@ export default function ImposterGame() {
         { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${currentRoom.id}` },
         (payload) => {
           setCurrentRoom(payload.new);
+          
+          // Auto-start game for all players when host starts
+          if (payload.new.status === 'playing' && screen === 'room') {
+            setScreen('game');
+          }
+          
           if (payload.new.game_state) {
             setGameState(payload.new.game_state);
             if (payload.new.game_state.round) {
               setCurrentRound(payload.new.game_state.round);
             }
+            
+            // Update descriptions for current round
+            const currentRoundDescs = payload.new.game_state.allDescriptions?.filter(
+              d => d.round === payload.new.game_state.round
+            ) || [];
+            const descObj = {};
+            currentRoundDescs.forEach(d => {
+              descObj[d.player] = d.text;
+            });
+            setDescriptions(descObj);
           }
         }
       )
@@ -62,7 +78,7 @@ export default function ImposterGame() {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [currentRoom?.id]);
+  }, [currentRoom?.id, screen]);
 
   const fetchRooms = async () => {
     try {
