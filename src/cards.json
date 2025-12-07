@@ -1,0 +1,24 @@
+{
+  "cards": [
+    {
+      "id": 1,
+      "name": "Apple",
+      "image": "/images/cards/apple.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Banana",
+      "image": "/images/cards/banana.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Cat",
+      "image": "/images/cards/cat.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Dog",
+      "image": "/images/cards/dog.jpg"
+    }
+  ]
+}

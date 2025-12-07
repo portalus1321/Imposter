@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Plus, Play, X, Crown, Eye, EyeOff } from 'lucide-react';
+import cardsData from './cards.json';
 
 export default function ImposterGame() {
   const [screen, setScreen] = useState('lobby'); // lobby, room, game, voting, results
@@ -13,18 +14,6 @@ export default function ImposterGame() {
   const [votes, setVotes] = useState({});
   const [descriptions, setDescriptions] = useState({});
   const [newDescription, setNewDescription] = useState('');
-
-  // Sample cards - in production, you'd load these from your images folder
-  const cards = [
-    { id: 1, name: 'Apple', emoji: '🍎' },
-    { id: 2, name: 'Banana', emoji: '🍌' },
-    { id: 3, name: 'Cat', emoji: '🐱' },
-    { id: 4, name: 'Dog', emoji: '🐕' },
-    { id: 5, name: 'Car', emoji: '🚗' },
-    { id: 6, name: 'Tree', emoji: '🌳' },
-    { id: 7, name: 'Beach', emoji: '🏖️' },
-    { id: 8, name: 'Pizza', emoji: '🍕' },
-  ];
 
   const createRoom = () => {
     if (!newRoomName.trim() || !playerName.trim()) return;
@@ -61,7 +50,7 @@ export default function ImposterGame() {
     if (!currentRoom || currentRoom.players.length < 3) return;
     
     // Pick random card and imposter
-    const selectedCard = cards[Math.floor(Math.random() * cards.length)];
+    const selectedCard = cardsData.cards[Math.floor(Math.random() * cardsData.cards.length)];
     const imposterIndex = Math.floor(Math.random() * currentRoom.players.length);
     
     const playerCards = currentRoom.players.map((player, idx) => ({
@@ -312,7 +301,11 @@ export default function ImposterGame() {
                       </div>
                     ) : (
                       <div>
-                        <p className="text-6xl mb-4">{myCard.card.emoji}</p>
+                        <img 
+                          src={myCard.card.image} 
+                          alt={myCard.card.name}
+                          className="w-48 h-48 object-contain mx-auto mb-4 rounded-lg"
+                        />
                         <p className="text-2xl font-bold">{myCard.card.name}</p>
                       </div>
                     )}
@@ -442,7 +435,11 @@ export default function ImposterGame() {
 
             <div className="bg-purple-50 p-6 rounded-xl mb-6">
               <p className="text-lg mb-2">The card was:</p>
-              <p className="text-6xl mb-2">{gameState.card.emoji}</p>
+              <img 
+                src={gameState.card.image} 
+                alt={gameState.card.name}
+                className="w-48 h-48 object-contain mx-auto mb-4 rounded-lg"
+              />
               <p className="text-2xl font-bold">{gameState.card.name}</p>
             </div>
 
