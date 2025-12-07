@@ -22,6 +22,30 @@ export default function ImposterGame() {
   const [newDescription, setNewDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [timer, setTimer] = useState(60);
+  const [timerActive, setTimerActive] = useState(false);
+
+  // Timer effect
+  useEffect(() => {
+    if (!timerActive || timer <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimer(prev => {
+        if (prev <= 1) {
+          setTimerActive(false);
+          if (screen === 'game' && Object.keys(descriptions).length > 0) {
+            goToVoting();
+          } else if (screen === 'voting' && Object.keys(votes).length > 0) {
+            finishVoting();
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timerActive, timer, screen]);
 
   // Fetch rooms on mount and subscribe to changes
   useEffect(() => {
@@ -53,6 +77,8 @@ export default function ImposterGame() {
           // Auto-start game for all players when host starts
           if (payload.new.status === 'playing' && screen === 'room') {
             setScreen('game');
+            setTimer(60);
+            setTimerActive(true);
           }
           
           if (payload.new.game_state) {
@@ -70,6 +96,16 @@ export default function ImposterGame() {
               descObj[d.player] = d.text;
             });
             setDescriptions(descObj);
+            
+            // Sync votes
+            if (payload.new.game_state.currentVotes) {
+              setVotes(payload.new.game_state.currentVotes);
+            }
+            
+            // Check if game finished
+            if (payload.new.status === 'finished' && screen !== 'results') {
+              setScreen('results');
+            }
           }
         }
       )
@@ -179,7 +215,8 @@ export default function ImposterGame() {
         card: selectedCard,
         playerCards,
         round: 1,
-        allDescriptions: []
+        allDescriptions: [],
+        currentVotes: {}
       };
       
       const { data, error } = await supabase
@@ -198,6 +235,8 @@ export default function ImposterGame() {
       setCurrentRound(1);
       setScreen('game');
       setDescriptions({});
+      setTimer(60);
+      setTimerActive(true);
     } catch (err) {
       console.error('Error starting game:', err);
       setError('Failed to start game');
@@ -239,26 +278,79 @@ export default function ImposterGame() {
     }
   };
 
-  const goToVoting = () => {
+  const goToVoting = async () => {
     setVotes({});
     setScreen('voting');
+    setTimer(45);
+    setTimerActive(true);
+    
+    // Clear votes in database for new voting round
+    try {
+      const updatedGameState = {
+        ...gameState,
+        currentVotes: {}
+      };
+      
+      await supabase
+        .from('rooms')
+        .update({ game_state: updatedGameState })
+        .eq('id', currentRoom.id);
+    } catch (err) {
+      console.error('Error clearing votes:', err);
+    }
   };
 
-  const votePlayer = (votedPlayer) => {
-    setVotes({
+  const votePlayer = async (votedPlayer) => {
+    const newVotes = {
       ...votes,
       [playerName]: votedPlayer
-    });
+    };
+    
+    setVotes(newVotes);
+    
+    // Save vote to database
+    try {
+      const updatedGameState = {
+        ...gameState,
+        currentVotes: newVotes
+      };
+      
+      await supabase
+        .from('rooms')
+        .update({ game_state: updatedGameState })
+        .eq('id', currentRoom.id);
+    } catch (err) {
+      console.error('Error saving vote:', err);
+    }
   };
 
-  const voteContinue = () => {
-    setVotes({
+  const voteContinue = async () => {
+    const newVotes = {
       ...votes,
       [playerName]: 'continue'
-    });
+    };
+    
+    setVotes(newVotes);
+    
+    // Save vote to database
+    try {
+      const updatedGameState = {
+        ...gameState,
+        currentVotes: newVotes
+      };
+      
+      await supabase
+        .from('rooms')
+        .update({ game_state: updatedGameState })
+        .eq('id', currentRoom.id);
+    } catch (err) {
+      console.error('Error saving vote:', err);
+    }
   };
 
   const finishVoting = async () => {
+    setTimerActive(false);
+    
     const voteCount = {};
     let continueCount = 0;
     
@@ -274,11 +366,14 @@ export default function ImposterGame() {
       setCurrentRound(currentRound + 1);
       setDescriptions({});
       setScreen('game');
+      setTimer(60);
+      setTimerActive(true);
       
       try {
         const updatedGameState = {
           ...gameState,
-          round: currentRound + 1
+          round: currentRound + 1,
+          currentVotes: {}
         };
         
         await supabase
@@ -321,6 +416,8 @@ export default function ImposterGame() {
   };
 
   const resetGame = async () => {
+    setTimerActive(false);
+    
     if (currentRoom) {
       try {
         await supabase
@@ -338,6 +435,7 @@ export default function ImposterGame() {
     setCurrentRound(0);
     setVotes({});
     setDescriptions({});
+    setTimer(60);
     fetchRooms();
   };
 
@@ -473,6 +571,13 @@ export default function ImposterGame() {
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-gray-800 mb-2">Round {currentRound}</h1>
               <p className="text-gray-600">Describe your card without being too obvious!</p>
+              {timerActive && (
+                <div className="mt-4">
+                  <div className="text-2xl font-bold text-purple-600">
+                    ⏱️ {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="mb-8">
@@ -552,7 +657,14 @@ export default function ImposterGame() {
         {/* Voting Screen */}
         {screen === 'voting' && gameState && (
           <div className="bg-white rounded-2xl shadow-2xl p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Voting Time!</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">Voting Time!</h1>
+            {timerActive && (
+              <div className="text-center mb-6">
+                <div className="text-2xl font-bold text-red-600">
+                  ⏱️ {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
+                </div>
+              </div>
+            )}
 
             <div className="mb-8">
               <button
