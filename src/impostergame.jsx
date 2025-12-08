@@ -102,6 +102,20 @@ export default function ImposterGame() {
               setVotes(payload.new.game_state.currentVotes);
             }
             
+            // Auto-move to voting screen
+            if (payload.new.game_state.votingActive && screen === 'game') {
+              setScreen('voting');
+              setTimer(45);
+              setTimerActive(true);
+            }
+            
+            // Auto-move to game screen when new round starts
+            if (payload.new.game_state.votingActive === false && screen === 'voting') {
+              setScreen('game');
+              setTimer(60);
+              setTimerActive(true);
+            }
+            
             // Check if game finished
             if (payload.new.status === 'finished' && screen !== 'results') {
               setScreen('results');
@@ -169,12 +183,27 @@ export default function ImposterGame() {
   const joinRoom = async (room) => {
     if (!playerName.trim()) return;
     
+    // Check if player name already exists in room
+    if (room.players.some(p => p.name === playerName)) {
+      setError('A player with this name already exists in the room');
+      return;
+    }
+    
     setLoading(true);
     setError('');
     
     try {
+      // Fetch latest room data to avoid overwriting
+      const { data: latestRoom, error: fetchError } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('id', room.id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
       const player = { name: playerName, id: Date.now() };
-      const updatedPlayers = [...room.players, player];
+      const updatedPlayers = [...latestRoom.players, player];
       
       const { data, error } = await supabase
         .from('rooms')
@@ -249,14 +278,35 @@ export default function ImposterGame() {
     if (!newDescription.trim()) return;
     
     try {
-      const updatedDescriptions = [...gameState.allDescriptions, {
+      // Fetch latest state to avoid overwriting other descriptions
+      const { data: latestRoom, error: fetchError } = await supabase
+        .from('rooms')
+        .select('game_state')
+        .eq('id', currentRoom.id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      const existingDescriptions = latestRoom.game_state?.allDescriptions || [];
+      
+      // Check if this player already submitted for this round
+      const alreadySubmitted = existingDescriptions.some(
+        d => d.player === playerName && d.round === currentRound
+      );
+      
+      if (alreadySubmitted) {
+        setError('You already submitted a description for this round');
+        return;
+      }
+      
+      const updatedDescriptions = [...existingDescriptions, {
         player: playerName,
         text: newDescription,
         round: currentRound
       }];
       
       const updatedGameState = {
-        ...gameState,
+        ...latestRoom.game_state,
         allDescriptions: updatedDescriptions
       };
       
@@ -279,7 +329,6 @@ export default function ImposterGame() {
   };
 
   const goToVoting = async () => {
-    setVotes({});
     setScreen('voting');
     setTimer(45);
     setTimerActive(true);
@@ -288,30 +337,42 @@ export default function ImposterGame() {
     try {
       const updatedGameState = {
         ...gameState,
-        currentVotes: {}
+        currentVotes: {},
+        votingActive: true
       };
       
       await supabase
         .from('rooms')
         .update({ game_state: updatedGameState })
         .eq('id', currentRoom.id);
+        
+      setVotes({});
     } catch (err) {
       console.error('Error clearing votes:', err);
     }
   };
 
   const votePlayer = async (votedPlayer) => {
-    const newVotes = {
-      ...votes,
-      [playerName]: votedPlayer
-    };
-    
-    setVotes(newVotes);
-    
-    // Save vote to database
+    // First fetch the latest game state from database
     try {
+      const { data: latestRoom, error: fetchError } = await supabase
+        .from('rooms')
+        .select('game_state')
+        .eq('id', currentRoom.id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      const currentVotes = latestRoom.game_state?.currentVotes || {};
+      const newVotes = {
+        ...currentVotes,
+        [playerName]: votedPlayer
+      };
+      
+      setVotes(newVotes);
+      
       const updatedGameState = {
-        ...gameState,
+        ...latestRoom.game_state,
         currentVotes: newVotes
       };
       
@@ -321,21 +382,31 @@ export default function ImposterGame() {
         .eq('id', currentRoom.id);
     } catch (err) {
       console.error('Error saving vote:', err);
+      setError('Failed to save vote');
     }
   };
 
   const voteContinue = async () => {
-    const newVotes = {
-      ...votes,
-      [playerName]: 'continue'
-    };
-    
-    setVotes(newVotes);
-    
-    // Save vote to database
+    // First fetch the latest game state from database
     try {
+      const { data: latestRoom, error: fetchError } = await supabase
+        .from('rooms')
+        .select('game_state')
+        .eq('id', currentRoom.id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      const currentVotes = latestRoom.game_state?.currentVotes || {};
+      const newVotes = {
+        ...currentVotes,
+        [playerName]: 'continue'
+      };
+      
+      setVotes(newVotes);
+      
       const updatedGameState = {
-        ...gameState,
+        ...latestRoom.game_state,
         currentVotes: newVotes
       };
       
@@ -345,60 +416,70 @@ export default function ImposterGame() {
         .eq('id', currentRoom.id);
     } catch (err) {
       console.error('Error saving vote:', err);
+      setError('Failed to save vote');
     }
   };
 
   const finishVoting = async () => {
     setTimerActive(false);
     
-    const voteCount = {};
-    let continueCount = 0;
-    
-    Object.values(votes).forEach(vote => {
-      if (vote === 'continue') {
-        continueCount++;
-      } else {
-        voteCount[vote] = (voteCount[vote] || 0) + 1;
-      }
-    });
-    
-    if (continueCount > Object.keys(votes).length / 2) {
-      setCurrentRound(currentRound + 1);
-      setDescriptions({});
-      setScreen('game');
-      setTimer(60);
-      setTimerActive(true);
+    // Fetch latest votes to ensure we have all of them
+    try {
+      const { data: latestRoom, error: fetchError } = await supabase
+        .from('rooms')
+        .select('game_state')
+        .eq('id', currentRoom.id)
+        .single();
       
-      try {
+      if (fetchError) throw fetchError;
+      
+      const finalVotes = latestRoom.game_state?.currentVotes || {};
+      
+      const voteCount = {};
+      let continueCount = 0;
+      
+      Object.values(finalVotes).forEach(vote => {
+        if (vote === 'continue') {
+          continueCount++;
+        } else {
+          voteCount[vote] = (voteCount[vote] || 0) + 1;
+        }
+      });
+      
+      if (continueCount > Object.keys(finalVotes).length / 2) {
+        // Continue to next round - all players go back to game
         const updatedGameState = {
-          ...gameState,
+          ...latestRoom.game_state,
           round: currentRound + 1,
-          currentVotes: {}
+          currentVotes: {},
+          votingActive: false
         };
         
         await supabase
           .from('rooms')
           .update({ game_state: updatedGameState })
           .eq('id', currentRoom.id);
-      } catch (err) {
-        console.error('Error updating round:', err);
-      }
-    } else {
-      const sortedVotes = Object.entries(voteCount).sort((a, b) => b[1] - a[1]);
-      const votedOut = sortedVotes[0]?.[0];
-      
-      const votedPlayer = gameState.playerCards.find(pc => pc.playerName === votedOut);
-      
-      const updatedGameState = {
-        ...gameState,
-        result: {
-          votedOut,
-          wasImposter: votedPlayer?.isImposter,
-          imposter: gameState.playerCards.find(pc => pc.isImposter)?.playerName
-        }
-      };
-      
-      try {
+          
+        setCurrentRound(currentRound + 1);
+        setDescriptions({});
+        setScreen('game');
+        setTimer(60);
+        setTimerActive(true);
+      } else {
+        const sortedVotes = Object.entries(voteCount).sort((a, b) => b[1] - a[1]);
+        const votedOut = sortedVotes[0]?.[0];
+        
+        const votedPlayer = latestRoom.game_state.playerCards.find(pc => pc.playerName === votedOut);
+        
+        const updatedGameState = {
+          ...latestRoom.game_state,
+          result: {
+            votedOut,
+            wasImposter: votedPlayer?.isImposter,
+            imposter: latestRoom.game_state.playerCards.find(pc => pc.isImposter)?.playerName
+          }
+        };
+        
         await supabase
           .from('rooms')
           .update({ 
@@ -409,9 +490,10 @@ export default function ImposterGame() {
         
         setGameState(updatedGameState);
         setScreen('results');
-      } catch (err) {
-        console.error('Error finishing game:', err);
       }
+    } catch (err) {
+      console.error('Error finishing voting:', err);
+      setError('Failed to finish voting');
     }
   };
 
@@ -643,13 +725,19 @@ export default function ImposterGame() {
               )}
             </div>
 
-            {currentRoundDescriptions.length === currentRoom.players.length && (
+            {currentRoundDescriptions.length === currentRoom.players.length && playerName === currentRoom.host && (
               <button
                 onClick={goToVoting}
                 className="w-full bg-red-600 text-white py-4 rounded-lg hover:bg-red-700 transition text-lg font-semibold"
               >
-                Proceed to Voting
+                Proceed to Voting (Host Only)
               </button>
+            )}
+            
+            {currentRoundDescriptions.length === currentRoom.players.length && playerName !== currentRoom.host && (
+              <div className="text-center text-gray-600 py-4">
+                Waiting for host to start voting...
+              </div>
             )}
           </div>
         )}
@@ -703,13 +791,19 @@ export default function ImposterGame() {
               </p>
             </div>
 
-            {Object.keys(votes).length === currentRoom.players.length && (
+            {playerName === currentRoom.host && Object.keys(votes).length === currentRoom.players.length && (
               <button
                 onClick={finishVoting}
                 className="w-full bg-purple-600 text-white py-4 rounded-lg hover:bg-purple-700 transition text-lg font-semibold"
               >
-                Finish Voting
+                Finish Voting (Host Only)
               </button>
+            )}
+
+            {playerName !== currentRoom.host && Object.keys(votes).length === currentRoom.players.length && (
+              <div className="text-center text-gray-600 py-4">
+                Waiting for host to finish voting...
+              </div>
             )}
           </div>
         )}
