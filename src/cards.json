@@ -3,607 +3,607 @@
     {
       "id": 1,
       "name": "3M",
-      "image": "public/images/3M.webp"
+      "image": "/images/3M.webp"
     },
     {
       "id": 2,
       "name": "ArcherQueen",
-      "image": "public/images/ArcherQueen.webp"
+      "image": "/images/ArcherQueen.webp"
     },
     {
       "id": 3,
       "name": "Archers",
-      "image": "public/images/Archers.webp"
+      "image": "/images/Archers.webp"
     },
     {
       "id": 4,
       "name": "Arrows",
-      "image": "public/images/Arrows.webp"
+      "image": "/images/Arrows.webp"
     },
     {
       "id": 5,
       "name": "BabyD",
-      "image": "public/images/BabyD.webp"
+      "image": "/images/BabyD.webp"
     },
     {
       "id": 6,
       "name": "Balloon",
-      "image": "public/images/Balloon.webp"
+      "image": "/images/Balloon.webp"
     },
     {
       "id": 7,
       "name": "Bandit",
-      "image": "public/images/Bandit.webp"
+      "image": "/images/Bandit.webp"
     },
     {
       "id": 8,
       "name": "BarbBarrel",
-      "image": "public/images/BarbBarrel.webp"
+      "image": "/images/BarbBarrel.webp"
     },
     {
       "id": 9,
       "name": "BarbHut",
-      "image": "public/images/BarbHut.webp"
+      "image": "/images/BarbHut.webp"
     },
     {
       "id": 10,
       "name": "Barbs",
-      "image": "public/images/Barbs.webp"
+      "image": "/images/Barbs.webp"
     },
     {
       "id": 11,
       "name": "Barrel",
-      "image": "public/images/Barrel.webp"
+      "image": "/images/Barrel.webp"
     },
     {
       "id": 12,
       "name": "Bats",
-      "image": "public/images/Bats.webp"
+      "image": "/images/Bats.webp"
     },
     {
       "id": 13,
       "name": "BattleHealer",
-      "image": "public/images/BattleHealer.webp"
+      "image": "/images/BattleHealer.webp"
     },
     {
       "id": 14,
       "name": "Berserker",
-      "image": "public/images/Berserker.webp"
+      "image": "/images/Berserker.webp"
     },
     {
       "id": 15,
       "name": "Bomber",
-      "image": "public/images/Bomber.webp"
+      "image": "/images/Bomber.webp"
     },
     {
       "id": 16,
       "name": "BombTower",
-      "image": "public/images/BombTower.webp"
+      "image": "/images/BombTower.webp"
     },
     {
       "id": 17,
       "name": "BossBandit",
-      "image": "public/images/BossBandit.webp"
+      "image": "/images/BossBandit.webp"
     },
     {
       "id": 18,
       "name": "Bowler",
-      "image": "public/images/Bowler.webp"
+      "image": "/images/Bowler.webp"
     },
     {
       "id": 19,
       "name": "Cannon",
-      "image": "public/images/Cannon.webp"
+      "image": "/images/Cannon.webp"
     },
     {
       "id": 20,
       "name": "CannonCart",
-      "image": "public/images/CannonCart.webp"
+      "image": "/images/CannonCart.webp"
     },
     {
       "id": 21,
       "name": "Clone",
-      "image": "public/images/Clone.webp"
+      "image": "/images/Clone.webp"
     },
     {
       "id": 22,
       "name": "DarkPrince",
-      "image": "public/images/DarkPrince.webp"
+      "image": "/images/DarkPrince.webp"
     },
     {
       "id": 23,
       "name": "DartGob",
-      "image": "public/images/DartGob.webp"
+      "image": "/images/DartGob.webp"
     },
     {
       "id": 24,
       "name": "Earthquake",
-      "image": "public/images/Earthquake.webp"
+      "image": "/images/Earthquake.webp"
     },
     {
       "id": 25,
       "name": "eBarbs",
-      "image": "public/images/eBarbs.webp"
+      "image": "/images/eBarbs.webp"
     },
     {
       "id": 26,
       "name": "eDragon",
-      "image": "public/images/eDragon.webp"
+      "image": "/images/eDragon.webp"
     },
     {
       "id": 27,
       "name": "ElectroGiant",
-      "image": "public/images/ElectroGiant.webp"
+      "image": "/images/ElectroGiant.webp"
     },
     {
       "id": 28,
       "name": "ElectroSpirit",
-      "image": "public/images/ElectroSpirit.webp"
+      "image": "/images/ElectroSpirit.webp"
     },
     {
       "id": 29,
       "name": "ElixirGolem",
-      "image": "public/images/ElixirGolem.webp"
+      "image": "/images/ElixirGolem.webp"
     },
     {
       "id": 30,
       "name": "eWiz",
-      "image": "public/images/eWiz.webp"
+      "image": "/images/eWiz.webp"
     },
     {
       "id": 31,
       "name": "Exe",
-      "image": "public/images/Exe.webp"
+      "image": "/images/Exe.webp"
     },
     {
       "id": 32,
       "name": "Fireball",
-      "image": "public/images/Fireball.webp"
+      "image": "/images/Fireball.webp"
     },
     {
       "id": 33,
       "name": "Firecracker",
-      "image": "public/images/Firecracker.webp"
+      "image": "/images/Firecracker.webp"
     },
     {
       "id": 34,
       "name": "FireSpirit",
-      "image": "public/images/FireSpirit.webp"
+      "image": "/images/FireSpirit.webp"
     },
     {
       "id": 35,
       "name": "Fisherman",
-      "image": "public/images/Fisherman.webp"
+      "image": "/images/Fisherman.webp"
     },
     {
       "id": 36,
       "name": "FlyingMachine",
-      "image": "public/images/FlyingMachine.webp"
+      "image": "/images/FlyingMachine.webp"
     },
     {
       "id": 37,
       "name": "Freeze",
-      "image": "public/images/Freeze.webp"
+      "image": "/images/Freeze.webp"
     },
     {
       "id": 38,
       "name": "Furnace",
-      "image": "public/images/Furnace.webp"
+      "image": "/images/Furnace.webp"
     },
     {
       "id": 39,
       "name": "Ghost",
-      "image": "public/images/Ghost.webp"
+      "image": "/images/Ghost.webp"
     },
     {
       "id": 40,
       "name": "Giant",
-      "image": "public/images/Giant.webp"
+      "image": "/images/Giant.webp"
     },
     {
       "id": 41,
       "name": "GiantSkelly",
-      "image": "public/images/GiantSkelly.webp"
+      "image": "/images/GiantSkelly.webp"
     },
     {
       "id": 42,
       "name": "GobGang",
-      "image": "public/images/GobGang.webp"
+      "image": "/images/GobGang.webp"
     },
     {
       "id": 43,
       "name": "GobGiant",
-      "image": "public/images/GobGiant.webp"
+      "image": "/images/GobGiant.webp"
     },
     {
       "id": 44,
       "name": "GobHut",
-      "image": "public/images/GobHut.webp"
+      "image": "/images/GobHut.webp"
     },
     {
       "id": 45,
       "name": "GoblinCage",
-      "image": "public/images/GoblinCage.webp"
+      "image": "/images/GoblinCage.webp"
     },
     {
       "id": 46,
       "name": "GoblinCurse",
-      "image": "public/images/GoblinCurse.webp"
+      "image": "/images/GoblinCurse.webp"
     },
     {
       "id": 47,
       "name": "GoblinDemolisher",
-      "image": "public/images/GoblinDemolisher.webp"
+      "image": "/images/GoblinDemolisher.webp"
     },
     {
       "id": 48,
       "name": "GoblinDrill",
-      "image": "public/images/GoblinDrill.webp"
+      "image": "/images/GoblinDrill.webp"
     },
     {
       "id": 49,
       "name": "GoblinMachine",
-      "image": "public/images/GoblinMachine.webp"
+      "image": "/images/GoblinMachine.webp"
     },
     {
       "id": 50,
       "name": "Goblinstein",
-      "image": "public/images/Goblinstein.webp"
+      "image": "/images/Goblinstein.webp"
     },
     {
       "id": 51,
       "name": "Gobs",
-      "image": "public/images/Gobs.webp"
+      "image": "/images/Gobs.webp"
     },
     {
       "id": 52,
       "name": "GoldenKnight",
-      "image": "public/images/GoldenKnight.webp"
+      "image": "/images/GoldenKnight.webp"
     },
     {
       "id": 53,
       "name": "Golem",
-      "image": "public/images/Golem.webp"
+      "image": "/images/Golem.webp"
     },
     {
       "id": 54,
       "name": "Graveyard",
-      "image": "public/images/Graveyard.webp"
+      "image": "/images/Graveyard.webp"
     },
     {
       "id": 55,
       "name": "Guards",
-      "image": "public/images/Guards.webp"
+      "image": "/images/Guards.webp"
     },
     {
       "id": 56,
       "name": "HealSpirit",
-      "image": "public/images/HealSpirit.webp"
+      "image": "/images/HealSpirit.webp"
     },
     {
       "id": 57,
       "name": "Hog",
-      "image": "public/images/Hog.webp"
+      "image": "/images/Hog.webp"
     },
     {
       "id": 58,
       "name": "Horde",
-      "image": "public/images/Horde.webp"
+      "image": "/images/Horde.webp"
     },
     {
       "id": 59,
       "name": "Hunter",
-      "image": "public/images/Hunter.webp"
+      "image": "/images/Hunter.webp"
     },
     {
       "id": 60,
       "name": "IceGolem",
-      "image": "public/images/IceGolem.webp"
+      "image": "/images/IceGolem.webp"
     },
     {
       "id": 61,
       "name": "IceSpirit",
-      "image": "public/images/IceSpirit.webp"
+      "image": "/images/IceSpirit.webp"
     },
     {
       "id": 62,
       "name": "IceWiz",
-      "image": "public/images/IceWiz.webp"
+      "image": "/images/IceWiz.webp"
     },
     {
       "id": 63,
       "name": "Inferno",
-      "image": "public/images/Inferno.webp"
+      "image": "/images/Inferno.webp"
     },
     {
       "id": 64,
       "name": "InfernoD",
-      "image": "public/images/InfernoD.webp"
+      "image": "/images/InfernoD.webp"
     },
     {
       "id": 65,
       "name": "Knight",
-      "image": "public/images/Knight.webp"
+      "image": "/images/Knight.webp"
     },
     {
       "id": 66,
       "name": "Lava",
-      "image": "public/images/Lava.webp"
+      "image": "/images/Lava.webp"
     },
     {
       "id": 67,
       "name": "Lightning",
-      "image": "public/images/Lightning.webp"
+      "image": "/images/Lightning.webp"
     },
     {
       "id": 68,
       "name": "LittlePrince",
-      "image": "public/images/LittlePrince.webp"
+      "image": "/images/LittlePrince.webp"
     },
     {
       "id": 69,
       "name": "Log",
-      "image": "public/images/Log.webp"
+      "image": "/images/Log.webp"
     },
     {
       "id": 70,
       "name": "Lumber",
-      "image": "public/images/Lumber.webp"
+      "image": "/images/Lumber.webp"
     },
     {
       "id": 71,
       "name": "MagicArcher",
-      "image": "public/images/MagicArcher.webp"
+      "image": "/images/MagicArcher.webp"
     },
     {
       "id": 72,
       "name": "MegaKnight",
-      "image": "public/images/MegaKnight.webp"
+      "image": "/images/MegaKnight.webp"
     },
     {
       "id": 73,
       "name": "MightyMiner",
-      "image": "public/images/MightyMiner.webp"
+      "image": "/images/MightyMiner.webp"
     },
     {
       "id": 74,
       "name": "Miner",
-      "image": "public/images/Miner.webp"
+      "image": "/images/Miner.webp"
     },
     {
       "id": 75,
       "name": "Minions",
-      "image": "public/images/Minions.webp"
+      "image": "/images/Minions.webp"
     },
     {
       "id": 76,
       "name": "Mirror",
-      "image": "public/images/Mirror.webp"
+      "image": "/images/Mirror.webp"
     },
     {
       "id": 77,
       "name": "MM",
-      "image": "public/images/MM.webp"
+      "image": "/images/MM.webp"
     },
     {
       "id": 78,
       "name": "Monk",
-      "image": "public/images/Monk.webp"
+      "image": "/images/Monk.webp"
     },
     {
       "id": 79,
       "name": "Mortar",
-      "image": "public/images/Mortar.webp"
+      "image": "/images/Mortar.webp"
     },
     {
       "id": 80,
       "name": "MotherWitch",
-      "image": "public/images/MotherWitch.webp"
+      "image": "/images/MotherWitch.webp"
     },
     {
       "id": 81,
       "name": "MP",
-      "image": "public/images/MP.webp"
+      "image": "/images/MP.webp"
     },
     {
       "id": 82,
       "name": "Musk",
-      "image": "public/images/Musk.webp"
+      "image": "/images/Musk.webp"
     },
     {
       "id": 83,
       "name": "NightWitch",
-      "image": "public/images/NightWitch.webp"
+      "image": "/images/NightWitch.webp"
     },
     {
       "id": 84,
       "name": "PEKKA",
-      "image": "public/images/PEKKA.webp"
+      "image": "/images/PEKKA.webp"
     },
     {
       "id": 85,
       "name": "Phoenix",
-      "image": "public/images/Phoenix.webp"
+      "image": "/images/Phoenix.webp"
     },
     {
       "id": 86,
       "name": "Poison",
-      "image": "public/images/Poison.webp"
+      "image": "/images/Poison.webp"
     },
     {
       "id": 87,
       "name": "Prince",
-      "image": "public/images/Prince.webp"
+      "image": "/images/Prince.webp"
     },
     {
       "id": 88,
       "name": "Princess",
-      "image": "public/images/Princess.webp"
+      "image": "/images/Princess.webp"
     },
     {
       "id": 89,
       "name": "Pump",
-      "image": "public/images/Pump.webp"
+      "image": "/images/Pump.webp"
     },
     {
       "id": 90,
       "name": "Rage",
-      "image": "public/images/Rage.webp"
+      "image": "/images/Rage.webp"
     },
     {
       "id": 91,
       "name": "Ram",
-      "image": "public/images/Ram.webp"
+      "image": "/images/Ram.webp"
     },
     {
       "id": 92,
       "name": "RamRider",
-      "image": "public/images/RamRider.webp"
+      "image": "/images/RamRider.webp"
     },
     {
       "id": 93,
       "name": "Rascals",
-      "image": "public/images/Rascals.webp"
+      "image": "/images/Rascals.webp"
     },
     {
       "id": 94,
       "name": "RG",
-      "image": "public/images/RG.webp"
+      "image": "/images/RG.webp"
     },
     {
       "id": 95,
       "name": "Rocket",
-      "image": "public/images/Rocket.webp"
+      "image": "/images/Rocket.webp"
     },
     {
       "id": 96,
       "name": "RoyalDelivery",
-      "image": "public/images/RoyalDelivery.webp"
+      "image": "/images/RoyalDelivery.webp"
     },
     {
       "id": 97,
       "name": "RoyalHogs",
-      "image": "public/images/RoyalHogs.webp"
+      "image": "/images/RoyalHogs.webp"
     },
     {
       "id": 98,
       "name": "RoyalRecruits",
-      "image": "public/images/RoyalRecruits.webp"
+      "image": "/images/RoyalRecruits.webp"
     },
     {
       "id": 99,
       "name": "RuneGiant",
-      "image": "public/images/RuneGiant.webp"
+      "image": "/images/RuneGiant.webp"
     },
     {
       "id": 100,
       "name": "Skarmy",
-      "image": "public/images/Skarmy.webp"
+      "image": "/images/Skarmy.webp"
     },
     {
       "id": 101,
       "name": "SkeletonDragons",
-      "image": "public/images/SkeletonDragons.webp"
+      "image": "/images/SkeletonDragons.webp"
     },
     {
       "id": 102,
       "name": "SkeletonKing",
-      "image": "public/images/SkeletonKing.webp"
+      "image": "/images/SkeletonKing.webp"
     },
     {
       "id": 103,
       "name": "Skellies",
-      "image": "public/images/Skellies.webp"
+      "image": "/images/Skellies.webp"
     },
     {
       "id": 104,
       "name": "SkellyBarrel",
-      "image": "public/images/SkellyBarrel.webp"
+      "image": "/images/SkellyBarrel.webp"
     },
     {
       "id": 105,
       "name": "Snowball",
-      "image": "public/images/Snowball.webp"
+      "image": "/images/Snowball.webp"
     },
     {
       "id": 106,
       "name": "Sparky",
-      "image": "public/images/Sparky.webp"
+      "image": "/images/Sparky.webp"
     },
     {
       "id": 107,
       "name": "SpearGobs",
-      "image": "public/images/SpearGobs.webp"
+      "image": "/images/SpearGobs.webp"
     },
     {
       "id": 108,
       "name": "SpiritEmpress",
-      "image": "public/images/SpiritEmpress.webp"
+      "image": "/images/SpiritEmpress.webp"
     },
     {
       "id": 109,
       "name": "SuspiciousBush",
-      "image": "public/images/SuspiciousBush.webp"
+      "image": "/images/SuspiciousBush.webp"
     },
     {
       "id": 110,
       "name": "Tesla",
-      "image": "public/images/Tesla.webp"
+      "image": "/images/Tesla.webp"
     },
     {
       "id": 111,
       "name": "Tombstone",
-      "image": "public/images/Tombstone.webp"
+      "image": "/images/Tombstone.webp"
     },
     {
       "id": 112,
       "name": "Tornado",
-      "image": "public/images/Tornado.webp"
+      "image": "/images/Tornado.webp"
     },
     {
       "id": 113,
       "name": "Valk",
-      "image": "public/images/Valk.webp"
+      "image": "/images/Valk.webp"
     },
     {
       "id": 114,
       "name": "Vines",
-      "image": "public/images/Vines.webp"
+      "image": "/images/Vines.webp"
     },
     {
       "id": 115,
       "name": "Void",
-      "image": "public/images/Void.webp"
+      "image": "/images/Void.webp"
     },
     {
       "id": 116,
       "name": "WallBreakers",
-      "image": "public/images/WallBreakers.webp"
+      "image": "/images/WallBreakers.webp"
     },
     {
       "id": 117,
       "name": "Witch",
-      "image": "public/images/Witch.webp"
+      "image": "/images/Witch.webp"
     },
     {
       "id": 118,
       "name": "Wiz",
-      "image": "public/images/Wiz.webp"
+      "image": "/images/Wiz.webp"
     },
     {
       "id": 119,
       "name": "XBow",
-      "image": "public/images/XBow.webp"
+      "image": "/images/XBow.webp"
     },
     {
       "id": 120,
       "name": "Zap",
-      "image": "public/images/Zap.webp"
+      "image": "/images/Zap.webp"
     },
     {
       "id": 121,
       "name": "Zappies",
-      "image": "public/images/Zappies.webp"
+      "image": "/images/Zappies.webp"
     }
   ]
 }
